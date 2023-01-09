@@ -23,15 +23,10 @@ public class UserRequest {
                 .when()
                 .post(login);
     }
-    public String getUserAccessTkn(User user){
-        Response response = given().log().all()
-                .header("Content-type", "application/json")
-                .baseUri(uri)
-                .body(user)
-                .when()
-                .post(login);
+
+    public String getUserAccessTkn(Response response){
         return response.then().extract()
-                        .path("accessToken");
+                .path("accessToken");
     }
     public Response getUserData(String accessTkn){
         return given().log().all()
@@ -42,7 +37,9 @@ public class UserRequest {
     }
     public Response changeUserData(User user, String accessTkn){
         return given().log().all()
-                .header("Authorization", accessTkn)
+                .header("Content-type", "application/json")
+                .auth().oauth2(accessTkn.replace("Bearer ", ""))
+                .when()
                 .baseUri(uri)
                 .body(user)
                 .when()

@@ -3,7 +3,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 
 public class DataGenForUser {
     public String generateEmail(){
-        return RandomStringUtils.randomAlphabetic(8).toLowerCase()+"@yandex.ru";
+        return RandomStringUtils.randomAlphabetic(12).toLowerCase()+"@yandex.ru";
     }
     public String generatePassword(){
         return RandomStringUtils.randomAlphanumeric(8).toLowerCase();
