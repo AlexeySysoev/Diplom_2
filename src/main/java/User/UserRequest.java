@@ -45,4 +45,20 @@ public class UserRequest {
                 .when()
                 .patch(userData);
     }
+    public void deleteUser(String accessTkn){
+        given().log().all()
+                .header("Content-type", "application/json")
+                .auth().oauth2(accessTkn.replace("Bearer ", ""))
+                .when()
+                .baseUri(uri)
+                .delete(userData)
+                .then()
+                .assertThat().statusCode(202);
+    }
+    public void deleteInvalidUser(Response response){
+        UserRequest userRequest = new UserRequest();
+        if (response.then().extract().statusCode() == 200 || response.then().extract().statusCode()==201){
+            userRequest.deleteUser(/*user, */userRequest.getUserAccessTkn(response));
+        }
+    }
 }
