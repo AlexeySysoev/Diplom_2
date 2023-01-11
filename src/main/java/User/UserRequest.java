@@ -58,7 +58,7 @@ public class UserRequest {
     public void deleteInvalidUser(Response response){
         UserRequest userRequest = new UserRequest();
         if (response.then().extract().statusCode() == 200 || response.then().extract().statusCode()==201){
-            userRequest.deleteUser(/*user, */userRequest.getUserAccessTkn(response));
+            userRequest.deleteUser(userRequest.getUserAccessTkn(response));
         }
     }
 }
