@@ -39,6 +39,7 @@ public class CreateOrderTest {
         Order order = new Order(ingredients);
         Response response = orderRequest.createOrder(order, accessTkn);
         response.then().assertThat().body("name", notNullValue()).and().statusCode(200);
+        userRequest.deleteUser(accessTkn);
     }
     @Test
     @DisplayName("Создание заказа с авторизацией пользователя без ингредиентов")
@@ -55,6 +56,7 @@ public class CreateOrderTest {
         response.then().assertThat().body("message", equalTo("Ingredient ids must be provided"))
                 .and()
                 .statusCode(400);
+        userRequest.deleteUser(accessTkn);
     }
     @Test
     @DisplayName("Создание заказа с авторизацией пользователя c неверным хешем ингредиентов")
@@ -66,13 +68,12 @@ public class CreateOrderTest {
         //Залогинить юзера, получить токен
         Response responseUser = userRequest.loginUser(user);
         String accessTkn = userRequest.getUserAccessTkn(responseUser);
-        List<String> ingredients = new ArrayList<>();
-        ingredients.add(StringUtils.reverse("61c0c5a71d1f82001bdaaa6d"));
-        ingredients.add(StringUtils.reverse("61c0c5a71d1f82001bdaaa6f"));
         Order order = new Order(ingredients);
         Response response = orderRequest.createOrder(order, accessTkn);
-        System.out.println("response status code is: "+response.then().extract().statusCode()+" but must bee 500");
+        System.out.println("response status code is: "+ response.then().extract().statusCode()
+                            +" but must bee 500");
         response.then().assertThat().statusCode(500);
+        userRequest.deleteUser(accessTkn);
     }
     @Test
     @DisplayName("Создание заказа без авторизации пользователя")
@@ -82,13 +83,11 @@ public class CreateOrderTest {
         Response responseUser =userRequest.createUser(user); //Создать юзера
         //получить токен неавторизованного пользователя
         String accessTkn = userRequest.getUserAccessTkn(responseUser);
-//        List<String> ingredients = new ArrayList<>();
-//        ingredients.add("61c0c5a71d1f82001bdaaa6d");
-//        ingredients.add("61c0c5a71d1f82001bdaaa6f");
         Order order = new Order(ingredients);
         Response response = orderRequest.createOrder(order, accessTkn);
         System.out.println("response status code is: "+response.then().extract().statusCode()+" but must bee 300+ (Redirect to Login)");
         int statusCode = response.then().extract().statusCode();
         Assert.assertTrue(statusCode >= 300 && statusCode < 400);
+        userRequest.deleteUser(accessTkn);
     }
 }

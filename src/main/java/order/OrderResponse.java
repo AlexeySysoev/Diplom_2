@@ -2,7 +2,7 @@ package order;
 
 import java.util.List;
 
-public class OrderResponse {
+public class OrderResponse {//Десериализатор ответа ручки
     private boolean success;
     private List<OrderData> orders;
     private int total;

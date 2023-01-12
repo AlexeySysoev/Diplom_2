@@ -2,7 +2,7 @@ package order;
 
 import java.util.List;
 
-public class OrderData {
+public class OrderData { // Десериализатор вложенного списка объектов для order
     private String _id;
     private List<String> ingredients;
     private String status;

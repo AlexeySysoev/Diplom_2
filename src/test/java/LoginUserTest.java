@@ -9,6 +9,10 @@ import User.UserRequest;
 import static org.hamcrest.CoreMatchers.equalTo;
 
 public class LoginUserTest {
+    DataGenForUser dataGenForUser = new DataGenForUser();
+    User user = new User(dataGenForUser.generateEmail(), dataGenForUser.generatePassword(), dataGenForUser.generateName());
+    UserRequest userRequest = new UserRequest();
+
     @Before
     public void setUp() throws InterruptedException {
         Thread.sleep(2000);
@@ -16,29 +20,25 @@ public class LoginUserTest {
     @Test
     @DisplayName("Логин пользователя с корректными данными")
     @Description("Проверяем тело ответа и статускод 200")
-    public void checkLoginCorrectUser(){
-        DataGenForUser dataGenForUser = new DataGenForUser();
-        User user = new User(dataGenForUser.generateEmail(), dataGenForUser.generatePassword(), dataGenForUser.generateName());
-        UserRequest userRequest = new UserRequest();
+    public void checkLoginCorrectUser() throws InterruptedException {
         userRequest.createUser(user);
+        Thread.sleep(2000);
         Response response = userRequest.loginUser(user);
+        Thread.sleep(2000);
         response.then()
                 .assertThat().body("success", equalTo(true))
                 .and()
                 .statusCode(200);
         String accessTkn = userRequest.getUserAccessTkn(response);
+        Thread.sleep(2000);
         userRequest.deleteUser(accessTkn);
     }
     @Test
     @DisplayName("Логин пользователя с неверной почтой")
     @Description("Проверяем тело ответа и статускод 401")
     public void checkLoginUserWithWrongEmail(){
-        DataGenForUser dataGenForUser = new DataGenForUser();
-        String password = dataGenForUser.generatePassword();
-        User user = new User(dataGenForUser.generateEmail(), password, dataGenForUser.generateName());
-        UserRequest userRequest = new UserRequest();
         Response response = userRequest.createUser(user);
-        User userWithInvalidEmail = new User(dataGenForUser.generateEmail(), password);
+        User userWithInvalidEmail = new User(dataGenForUser.generateEmail(), user.getPassword());
         userRequest.loginUser(userWithInvalidEmail).then()
                 .assertThat().body("message", equalTo("email or password are incorrect"))
                 .and()
@@ -50,12 +50,8 @@ public class LoginUserTest {
     @DisplayName("Логин пользователя с неверным паролем")
     @Description("Проверяем тело ответа и статускод 401")
     public void checkLoginUserWithWrongPassword(){
-        DataGenForUser dataGenForUser = new DataGenForUser();
-        String email = dataGenForUser.generateEmail();
-        User user = new User(email, dataGenForUser.generatePassword(), dataGenForUser.generateName());
-        UserRequest userRequest = new UserRequest();
         Response response = userRequest.createUser(user);
-        User userWithInvalidEmail = new User(email, dataGenForUser.generatePassword());
+        User userWithInvalidEmail = new User(user.getEmail(), dataGenForUser.generatePassword());
         userRequest.loginUser(userWithInvalidEmail).then()
                 .assertThat().body("message", equalTo("email or password are incorrect"))
                 .and()
@@ -68,12 +64,8 @@ public class LoginUserTest {
     @DisplayName("Логин пользователя без почты")
     @Description("Проверяем тело ответа и статускод 401")
     public void checkLoginUserWithoutEmailField(){
-        DataGenForUser dataGenForUser = new DataGenForUser();
-        String password = dataGenForUser.generatePassword();
-        User user = new User(dataGenForUser.generateEmail(), password, dataGenForUser.generateName());
-        UserRequest userRequest = new UserRequest();
         Response response = userRequest.createUser(user);
-        User userWithInvalidEmail = new User(null, password);
+        User userWithInvalidEmail = new User(null, user.getPassword());
         userRequest.loginUser(userWithInvalidEmail).then()
                 .assertThat().body("message", equalTo("email or password are incorrect"))
                 .and()
@@ -86,12 +78,8 @@ public class LoginUserTest {
     @DisplayName("Логин пользователя без пароля")
     @Description("Проверяем тело ответа и статускод 401")
     public void checkLoginUserWithoutPasswordField(){
-        DataGenForUser dataGenForUser = new DataGenForUser();
-        String email = dataGenForUser.generateEmail();
-        User user = new User(email, dataGenForUser.generatePassword(), dataGenForUser.generateName());
-        UserRequest userRequest = new UserRequest();
         Response response = userRequest.createUser(user);
-        User userWithInvalidEmail = new User(email, null);
+        User userWithInvalidEmail = new User(user.getEmail(), null);
         userRequest.loginUser(userWithInvalidEmail).then()
                 .assertThat().body("message", equalTo("email or password are incorrect"))
                 .and()
