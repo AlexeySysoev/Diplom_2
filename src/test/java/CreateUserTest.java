@@ -3,13 +3,9 @@ import User.DataGenForUser;
 import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
-import org.awaitility.Awaitility;
 import org.junit.Before;
 import org.junit.Test;
 import User.UserRequest;
-
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.CoreMatchers.equalTo;
 
 public class CreateUserTest {
@@ -17,12 +13,8 @@ public class CreateUserTest {
     User user = new User(dataGenForUser.generateEmail(), dataGenForUser.generatePassword(), dataGenForUser.generateName());
     UserRequest userRequest = new UserRequest();
     @Before
-    public void setUp() {
-        Awaitility.reset();
-        Awaitility.setDefaultPollDelay(100, MILLISECONDS);
-        Awaitility.setDefaultPollInterval(3, SECONDS);
-        Awaitility.setDefaultTimeout(2, SECONDS);
-        //Thread.sleep(2000); //Спасаемся от кода 429
+    public void setUp() throws InterruptedException {
+        Thread.sleep(2000); //Спасаемся от кода 429
     }
     @Test
     @DisplayName("Создаем нового пользователя с уникальными данными")
@@ -42,17 +34,14 @@ public class CreateUserTest {
     @Description("Проверяем тело ответа и статускод 403")
     public void checkCreateAlreadyExistUserReturnForbidden() {
         Response response = userRequest.createUser(user);//делаем первого юзера
-        //Thread.sleep(2000);
         User badUser = new User(user.getEmail(), dataGenForUser.generatePassword(), dataGenForUser.generateName());
         Response response_badUser = userRequest.createUser(badUser);//пытаемся сделать юзера еще раз
-        //Thread.sleep(2000);
         response_badUser.then() //проверяем ответ
                 .assertThat().body("message", equalTo("User already exists"))
                 .and()
                 .statusCode(403);
         String accessTkn = userRequest.getUserAccessTkn(response);
         userRequest.deleteUser(accessTkn);
-        //Thread.sleep(2000);
         userRequest.deleteInvalidUser(response_badUser);
     }
     @Test
@@ -61,7 +50,6 @@ public class CreateUserTest {
     public void checkCreateUserWithoutEmailFieldReturnForbidden() {
         user.setEmail(null);
         Response response = userRequest.createUser(user);
-        //Thread.sleep(2000);
         response.then()
                 .assertThat().body("message", equalTo("Email, password and name are required fields"))
                 .and()

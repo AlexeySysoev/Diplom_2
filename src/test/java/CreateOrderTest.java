@@ -13,7 +13,6 @@ import org.junit.Test;
 import static org.hamcrest.CoreMatchers.equalTo;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang3.*;
 import static org.hamcrest.CoreMatchers.notNullValue;
 
 public class CreateOrderTest {
@@ -32,8 +31,7 @@ public class CreateOrderTest {
     @DisplayName("Создание заказа с авторизацией пользователя и ингредиентами")
     @Description("Проверяем тело ответа и статускод 200")
     public void checkCreateOrderContainIngredientsWithAuthReturnOk(){
-        userRequest.createUser(user); //Создать юзера
-        //Залогинить юзера, получить токен
+        userRequest.createUser(user);
         Response responseUser = userRequest.loginUser(user);
         String accessTkn = userRequest.getUserAccessTkn(responseUser);
         Order order = new Order(ingredients);
@@ -45,13 +43,11 @@ public class CreateOrderTest {
     @DisplayName("Создание заказа с авторизацией пользователя без ингредиентов")
     @Description("Проверяем тело ответа и статус код 400")
     public void checkCreateOrderEmptyIngredientsWithAuthReturnOk(){
-        //Создать юзера
         userRequest.createUser(user);
-        //Залогинить юзера, получить токен
         Response responseUser = userRequest.loginUser(user);
         String accessTkn = userRequest.getUserAccessTkn(responseUser);
-        List<String> ingredients = new ArrayList<>();
-        Order order = new Order(ingredients);
+        List<String> emptyIngredients = new ArrayList<>();
+        Order order = new Order(emptyIngredients);
         Response response = orderRequest.createOrder(order, accessTkn);
         response.then().assertThat().body("message", equalTo("Ingredient ids must be provided"))
                 .and()
@@ -61,11 +57,9 @@ public class CreateOrderTest {
     @Test
     @DisplayName("Создание заказа с авторизацией пользователя c неверным хешем ингредиентов")
     @Description("Проверяем тело ответа и статус код 500")
-    @Issue("Bug-004")
+    @Issue("Bug-004, приходит 400")
     public void checkCreateOrderInvalidIngredientsWithAuthReturnServerError(){
-        //Создать юзера
         userRequest.createUser(user);
-        //Залогинить юзера, получить токен
         Response responseUser = userRequest.loginUser(user);
         String accessTkn = userRequest.getUserAccessTkn(responseUser);
         Order order = new Order(ingredients);
@@ -80,8 +74,7 @@ public class CreateOrderTest {
     @Description("Проверяем редирект на api/login (ожидаем статус код серии 300)")
     @Issue("Bug-005")
     public void checkCreateOrderWithoutAuthMadeRedirectToLogin(){
-        Response responseUser =userRequest.createUser(user); //Создать юзера
-        //получить токен неавторизованного пользователя
+        Response responseUser =userRequest.createUser(user);
         String accessTkn = userRequest.getUserAccessTkn(responseUser);
         Order order = new Order(ingredients);
         Response response = orderRequest.createOrder(order, accessTkn);

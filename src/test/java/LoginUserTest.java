@@ -20,17 +20,14 @@ public class LoginUserTest {
     @Test
     @DisplayName("Логин пользователя с корректными данными")
     @Description("Проверяем тело ответа и статускод 200")
-    public void checkLoginCorrectUser() throws InterruptedException {
+    public void checkLoginCorrectUser() {
         userRequest.createUser(user);
-        Thread.sleep(2000);
         Response response = userRequest.loginUser(user);
-        Thread.sleep(2000);
         response.then()
                 .assertThat().body("success", equalTo(true))
                 .and()
                 .statusCode(200);
         String accessTkn = userRequest.getUserAccessTkn(response);
-        Thread.sleep(2000);
         userRequest.deleteUser(accessTkn);
     }
     @Test
@@ -59,7 +56,6 @@ public class LoginUserTest {
         String accessTkn = userRequest.getUserAccessTkn(response);
         userRequest.deleteUser(accessTkn);
     }
-    //логин без почты
     @Test
     @DisplayName("Логин пользователя без почты")
     @Description("Проверяем тело ответа и статускод 401")
@@ -73,7 +69,6 @@ public class LoginUserTest {
         String accessTkn = userRequest.getUserAccessTkn(response);
         userRequest.deleteUser(accessTkn);
     }
-    //логин без пароля
     @Test
     @DisplayName("Логин пользователя без пароля")
     @Description("Проверяем тело ответа и статускод 401")
