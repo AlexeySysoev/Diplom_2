@@ -19,7 +19,6 @@ public class OrderRequest {
                 .body(order)
                 .when()
                 .post(orderApi);
-
     }
     public Response getUserOrder(String accessTkn){
         return given().log().all()
