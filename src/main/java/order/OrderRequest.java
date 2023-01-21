@@ -1,18 +1,19 @@
 package order;
 
-import User.User;
+import io.qameta.allure.Step;
 import io.restassured.response.Response;
+import specs.Specs;
 
 import java.util.List;
 
-import static io.restassured.RestAssured.given;
 
-public class OrderRequest {
+public class OrderRequest extends Specs {
     private final String uri = "https://stellarburgers.nomoreparties.site/";
     private final String orderApi = "api/orders";
-    public Response createOrder(Order order, String accessTkn){
-        return given().log().all()
-                .header("Content-type", "application/json")
+
+    @Step("Создание заказа пользователя")
+    public Response createOrder(Order order, String accessTkn) throws InterruptedException {
+        return startSpec()
                 .auth().oauth2(accessTkn.replace("Bearer ", ""))
                 .when()
                 .baseUri(uri)
@@ -20,18 +21,20 @@ public class OrderRequest {
                 .when()
                 .post(orderApi);
     }
-    public Response getUserOrder(String accessTkn){
-        return given().log().all()
-                .header("Content-type", "application/json")
+
+    @Step("Получение заказа пользователя")
+    public Response getUserOrder(String accessTkn) throws InterruptedException {
+        return startSpec()
                 .auth().oauth2(accessTkn.replace("Bearer ", ""))
                 .when()
                 .baseUri(uri)
                 .when()
                 .get(orderApi);
     }
-    public OrderResponse getUserOrderList(String accessTkn){
-        return given().log().all()
-                .header("Content-type", "application/json")
+
+    @Step("Получение списка заказов пользователя")
+    public OrderResponse getUserOrderList(String accessTkn) throws InterruptedException {
+        return startSpec()
                 .auth().oauth2(accessTkn.replace("Bearer ", ""))
                 .when()
                 .baseUri(uri)
@@ -40,7 +43,9 @@ public class OrderRequest {
                 .body()
                 .as(OrderResponse.class);
     }
-    public int checkUserOrdersId(OrderResponse orderResponse){
+
+    @Step("Проверка id заказов пользователя")
+    public int checkUserOrdersId(OrderResponse orderResponse) {
         List<OrderData> orderDataList = orderResponse.getOrders();
         OrderData orderDataItem;
         int idCount = 0;

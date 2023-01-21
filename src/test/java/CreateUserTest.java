@@ -1,83 +1,83 @@
-import User.User;
-import User.DataGenForUser;
 import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
-import org.junit.Before;
+import org.junit.After;
 import org.junit.Test;
-import User.UserRequest;
+import user.DataGenForUser;
+import user.User;
+import user.UserRequest;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 
 public class CreateUserTest {
     DataGenForUser dataGenForUser = new DataGenForUser();
     User user = new User(dataGenForUser.generateEmail(), dataGenForUser.generatePassword(), dataGenForUser.generateName());
     UserRequest userRequest = new UserRequest();
-    @Before
-    public void setUp() throws InterruptedException {
-        Thread.sleep(2000); //Спасаемся от кода 429
-    }
+
     @Test
     @DisplayName("Создаем нового пользователя с уникальными данными")
     @Description("Проверяем тело ответа и статускод 200")
-    public void checkCreateNewUniqueUser(){
-
+    public void checkCreateNewUniqueUser() throws InterruptedException {
         Response response = userRequest.createUser(user);
+        userRequest.setAccessTkn(response);
         response.then()
-                .assertThat().body("success", equalTo(true))
+                .assertThat().statusCode(200)
                 .and()
-                .statusCode(200);
-        String accessTkn = userRequest.getUserAccessTkn(response);
-        userRequest.deleteUser(accessTkn);
+                .body("success", equalTo(true));
     }
+
     @Test
     @DisplayName("Попытка создать нового пользователя с уже использующейся почтой")
     @Description("Проверяем тело ответа и статускод 403")
-    public void checkCreateAlreadyExistUserReturnForbidden() {
+    public void checkCreateAlreadyExistUserReturnForbidden() throws InterruptedException {
         Response response = userRequest.createUser(user);//делаем первого юзера
+        userRequest.setAccessTkn(response);
         User badUser = new User(user.getEmail(), dataGenForUser.generatePassword(), dataGenForUser.generateName());
-        Response response_badUser = userRequest.createUser(badUser);//пытаемся сделать юзера еще раз
-        response_badUser.then() //проверяем ответ
-                .assertThat().body("message", equalTo("User already exists"))
+        Response responseBadUser = userRequest.createUser(badUser);//пытаемся сделать юзера еще раз
+        responseBadUser.then() //проверяем ответ
+                .assertThat().statusCode(403)
                 .and()
-                .statusCode(403);
-        String accessTkn = userRequest.getUserAccessTkn(response);
-        userRequest.deleteUser(accessTkn);
-        userRequest.deleteInvalidUser(response_badUser);
+                .body("message", equalTo("User already exists"));
     }
+
     @Test
     @DisplayName("Попытка создать нового пользователя без почты")
     @Description("Проверяем тело ответа и статускод 403")
-    public void checkCreateUserWithoutEmailFieldReturnForbidden() {
+    public void checkCreateUserWithoutEmailFieldReturnForbidden() throws InterruptedException {
         user.setEmail(null);
         Response response = userRequest.createUser(user);
         response.then()
-                .assertThat().body("message", equalTo("Email, password and name are required fields"))
+                .assertThat().statusCode(403)
                 .and()
-                .statusCode(403);
-        userRequest.deleteInvalidUser(response);
+                .body("message", equalTo("Email, password and name are required fields"));
     }
+
     @Test
     @DisplayName("Попытка создать нового пользователя без пароля")
     @Description("Проверяем тело ответа и статускод 403")
-    public void checkCreateUserWithoutPasswordFieldReturnForbidden(){
+    public void checkCreateUserWithoutPasswordFieldReturnForbidden() throws InterruptedException {
         user.setPassword(null);
         Response response = userRequest.createUser(user);
         response.then()
-                .assertThat().body("message", equalTo("Email, password and name are required fields"))
+                .assertThat().statusCode(403)
                 .and()
-                .statusCode(403);
-        userRequest.deleteInvalidUser(response);
+                .body("message", equalTo("Email, password and name are required fields"));
     }
+
     @Test
     @DisplayName("Попытка создать нового пользователя без имени")
     @Description("Проверяем тело ответа и статускод 403")
-    public void checkCreateUserWithoutNameFieldReturnForbidden(){
+    public void checkCreateUserWithoutNameFieldReturnForbidden() throws InterruptedException {
         user.setName(null);
         Response response = userRequest.createUser(user);
         response.then()
-                .assertThat().body("message", equalTo("Email, password and name are required fields"))
+                .assertThat().statusCode(403)
                 .and()
-                .statusCode(403);
-        userRequest.deleteInvalidUser(response);
+                .body("message", equalTo("Email, password and name are required fields"));
+    }
+
+    @After
+    public void deleteUser() throws InterruptedException {
+        userRequest.deleteUser(userRequest.getAccessTkn());
     }
 }
