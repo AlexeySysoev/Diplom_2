@@ -1,130 +1,128 @@
-import User.DataGenForUser;
-import User.User;
-import User.UserRequest;
 import io.qameta.allure.Description;
 import io.qameta.allure.Issue;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
-import org.junit.Before;
+import org.junit.After;
 import org.junit.Test;
+import user.DataGenForUser;
+import user.User;
+import user.UserRequest;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 
 public class ChangeUserDataTest {
     DataGenForUser dataGenForUser = new DataGenForUser();
     UserRequest userRequest = new UserRequest();
     User user = new User(dataGenForUser.generateEmail(), dataGenForUser.generatePassword(), dataGenForUser.generateName());
-    @Before
-    public void setUp() throws InterruptedException {
-       Thread.sleep(2000);
-    }
+
     @Test
     @DisplayName("Меняем почту пользователя с логином в системе")
     @Description("Проверяем тело ответа и статускод 200")
-    public void checkChangeUserEmailWithAuthReturnOk(){
+    public void checkChangeUserEmailWithAuthReturnOk() throws InterruptedException {
         userRequest.createUser(user);
         Response response = userRequest.loginUser(user);
-        String accessTkn = userRequest.getUserAccessTkn(response);
-        //изменить данные юзера, проверить что данные изменились
+        userRequest.setAccessTkn(response);
         User newEmailUser = new User(dataGenForUser.generateEmail(), null, null);
-        userRequest.changeUserData(newEmailUser, accessTkn).then()
-                .assertThat().body("success", equalTo(true))
+        userRequest.changeUserData(newEmailUser, userRequest.getAccessTkn()).then()
+                .assertThat().statusCode(200)
                 .and()
-                .statusCode(200);
+                .body("success", equalTo(true));
     }
+
     @Test
     @DisplayName("Меняем пароль пользователя с логином в системе")
     @Description("Проверяем тело ответа и статускод 200")
-    public void checkChangeUserPasswordWithAuthReturnOk(){
+    public void checkChangeUserPasswordWithAuthReturnOk() throws InterruptedException {
         userRequest.createUser(user);
         Response response = userRequest.loginUser(user);
-        String accessTkn = userRequest.getUserAccessTkn(response);
+        userRequest.setAccessTkn(response);
         User newPasswordUser = new User(null, dataGenForUser.generatePassword(), null);
-        //изменить данные юзера, проверить что данные изменились
-        Response response_patch = userRequest.changeUserData(newPasswordUser, accessTkn);
+        Response response_patch = userRequest.changeUserData(newPasswordUser, userRequest.getAccessTkn());
         response_patch.then()
-                .assertThat().body("success", equalTo(true))
+                .assertThat().statusCode(200)
                 .and()
-                .statusCode(200);
+                .body("success", equalTo(true));
     }
+
     @Test
     @DisplayName("Меняем имя пользователя с логином в системе")
     @Description("Проверяем тело ответа и статускод 200")
-    public void checkChangeUserNameWithAuthReturnOk(){
+    public void checkChangeUserNameWithAuthReturnOk() throws InterruptedException {
         userRequest.createUser(user);
         Response response = userRequest.loginUser(user);
-        String accessTkn = userRequest.getUserAccessTkn(response);
+        userRequest.setAccessTkn(response);
         User newPasswordUser = new User(null, null, dataGenForUser.generateName());
-        //изменить данные юзера, проверить что данные изменились
-        Response response_patch = userRequest.changeUserData(newPasswordUser, accessTkn);
+        Response response_patch = userRequest.changeUserData(newPasswordUser, userRequest.getAccessTkn());
         response_patch.then()
-                .assertThat().body("success", equalTo(true))
+                .assertThat().statusCode(200)
                 .and()
-                .statusCode(200);
+                .body("success", equalTo(true));
     }
+
     @Test
     @DisplayName("Попытка сменить почту пользователя без логина в системе")
     @Description("Проверяем тело ответа и статускод 401")
     @Issue("BUG-001, Баг  - приходит 200 ОК")
-    public void checkChangeUserEmailWithoutAuthReturnUnauthorized(){
+    public void checkChangeUserEmailWithoutAuthReturnUnauthorized() throws InterruptedException {
         Response response = userRequest.createUser(user);
-        String accessTkn = userRequest.getUserAccessTkn(response);
-        //изменить данные юзера
+        userRequest.setAccessTkn(response);
         User newEmailUser = new User(dataGenForUser.generateEmail(), null, null);
-        //проверить что данные не изменились 401
-        Response response_patch = userRequest.changeUserData(newEmailUser, accessTkn);
+        Response response_patch = userRequest.changeUserData(newEmailUser, userRequest.getAccessTkn());
         response_patch.then()
-                .assertThat().body("message", equalTo("You should be authorised"))
+                .assertThat().statusCode(401)
                 .and()
-                .statusCode(401);
+                .body("message", equalTo("You should be authorised"));
     }
+
     @Test
     @DisplayName("Попытка сменить пароль пользователя без логина в системе")
     @Description("Проверяем тело ответа и статускод 401")
     @Issue("BUG-002, Баг  - приходит 200 ОК")
-    public void checkChangeUserPasswordWithoutAuthReturnUnauthorized(){
+    public void checkChangeUserPasswordWithoutAuthReturnUnauthorized() throws InterruptedException {
         Response response = userRequest.createUser(user);
-        String accessTkn = userRequest.getUserAccessTkn(response);
-        //изменить данные юзера
+        userRequest.setAccessTkn(response);
         User newPasswordUser = new User(null, dataGenForUser.generatePassword(), null);
-        //проверить что данные не изменились 401
-        Response response_patch = userRequest.changeUserData(newPasswordUser, accessTkn);
+        Response response_patch = userRequest.changeUserData(newPasswordUser, userRequest.getAccessTkn());
         response_patch.then()
-                .assertThat().body("message", equalTo("You should be authorised"))
+                .assertThat().statusCode(401)
                 .and()
-                .statusCode(401);
+                .body("message", equalTo("You should be authorised"));
     }
+
     @Test
     @DisplayName("Попытка сменить имя пользователя без логина в системе")
     @Description("Проверяем тело ответа и статускод 401")
     @Issue("BUG-003, Баг  - приходит 200 ОК")
-    public void checkChangeUserNameWithoutAuthReturnUnauthorized(){
+    public void checkChangeUserNameWithoutAuthReturnUnauthorized() throws InterruptedException {
         Response response = userRequest.createUser(user);
-        String accessTkn = userRequest.getUserAccessTkn(response);
-        //изменить данные юзера
+        userRequest.setAccessTkn(response);
         User newPasswordUser = new User(null, null, dataGenForUser.generateName());
-        //проверить что данные не изменились
-        Response response_patch = userRequest.changeUserData(newPasswordUser, accessTkn);
+        Response response_patch = userRequest.changeUserData(newPasswordUser, userRequest.getAccessTkn());
         response_patch.then()
-                .assertThat().body("message", equalTo("You should be authorised"))
+                .assertThat().statusCode(401)
                 .and()
-                .statusCode(401);
+                .body("message", equalTo("You should be authorised"));
     }
+
     @Test
     @DisplayName("Попытка сменить почту пользователя на уже существующую в системе")
     @Description("Проверяем тело ответа и статускод 403")
-    public void checkChangeUserAlreadyExistEmailReturnForbidden(){
+    public void checkChangeUserAlreadyExistEmailReturnForbidden() throws InterruptedException {
         User oldUser = new User(dataGenForUser.generateEmail(), dataGenForUser.generatePassword(), dataGenForUser.generateName());
         userRequest.createUser(oldUser);
         userRequest.createUser(user);
         Response response = userRequest.loginUser(user);
-        String accessTkn = userRequest.getUserAccessTkn(response);//получить токен
-        //изменить данные юзера
+        userRequest.setAccessTkn(response);
         User newEmailUser = new User(oldUser.getEmail(), null, null);//формируем JSON с полем почты
-        //проверить что данные не изменились
-        Response response_patch = userRequest.changeUserData(newEmailUser, accessTkn);
+        Response response_patch = userRequest.changeUserData(newEmailUser, userRequest.getAccessTkn());
         response_patch.then()
-                .assertThat().body("success", equalTo(false))
+                .assertThat().statusCode(403)
                 .and()
-                .statusCode(403);
+                .body("success", equalTo(false));
+    }
+
+    @After
+    public void deleteUser() throws InterruptedException {
+        userRequest.deleteUser(userRequest.getAccessTkn());
     }
 }
