@@ -19,11 +19,11 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 
 public class CreateOrderTest {
-    DataGenForUser dataGenForUser = new DataGenForUser();
-    UserRequest userRequest = new UserRequest();
-    User user = new User(dataGenForUser.generateEmail(), dataGenForUser.generatePassword(), dataGenForUser.generateName());
-    OrderRequest orderRequest = new OrderRequest();
-    List<String> ingredients = new ArrayList<>(); //Лист с ингредиентами
+    private DataGenForUser dataGenForUser = new DataGenForUser();
+    private UserRequest userRequest = new UserRequest();
+    private User user = new User(dataGenForUser.generateEmail(), dataGenForUser.generatePassword(), dataGenForUser.generateName());
+    private OrderRequest orderRequest = new OrderRequest();
+    private List<String> ingredients = new ArrayList<>(); //Лист с ингредиентами
 
     @Before
     public void setUp() {

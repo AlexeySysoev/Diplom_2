@@ -11,9 +11,9 @@ import user.UserRequest;
 import static org.hamcrest.CoreMatchers.equalTo;
 
 public class ChangeUserDataTest {
-    DataGenForUser dataGenForUser = new DataGenForUser();
-    UserRequest userRequest = new UserRequest();
-    User user = new User(dataGenForUser.generateEmail(), dataGenForUser.generatePassword(), dataGenForUser.generateName());
+    private DataGenForUser dataGenForUser = new DataGenForUser();
+    private UserRequest userRequest = new UserRequest();
+    private User user = new User(dataGenForUser.generateEmail(), dataGenForUser.generatePassword(), dataGenForUser.generateName());
 
     @Test
     @DisplayName("Меняем почту пользователя с логином в системе")
@@ -37,8 +37,8 @@ public class ChangeUserDataTest {
         Response response = userRequest.loginUser(user);
         userRequest.setAccessTkn(response);
         User newPasswordUser = new User(null, dataGenForUser.generatePassword(), null);
-        Response response_patch = userRequest.changeUserData(newPasswordUser, userRequest.getAccessTkn());
-        response_patch.then()
+        Response responsePatch = userRequest.changeUserData(newPasswordUser, userRequest.getAccessTkn());
+        responsePatch.then()
                 .assertThat().statusCode(200)
                 .and()
                 .body("success", equalTo(true));
@@ -52,8 +52,8 @@ public class ChangeUserDataTest {
         Response response = userRequest.loginUser(user);
         userRequest.setAccessTkn(response);
         User newPasswordUser = new User(null, null, dataGenForUser.generateName());
-        Response response_patch = userRequest.changeUserData(newPasswordUser, userRequest.getAccessTkn());
-        response_patch.then()
+        Response responsePatch = userRequest.changeUserData(newPasswordUser, userRequest.getAccessTkn());
+        responsePatch.then()
                 .assertThat().statusCode(200)
                 .and()
                 .body("success", equalTo(true));
@@ -67,8 +67,8 @@ public class ChangeUserDataTest {
         Response response = userRequest.createUser(user);
         userRequest.setAccessTkn(response);
         User newEmailUser = new User(dataGenForUser.generateEmail(), null, null);
-        Response response_patch = userRequest.changeUserData(newEmailUser, userRequest.getAccessTkn());
-        response_patch.then()
+        Response responsePatch = userRequest.changeUserData(newEmailUser, userRequest.getAccessTkn());
+        responsePatch.then()
                 .assertThat().statusCode(401)
                 .and()
                 .body("message", equalTo("You should be authorised"));
@@ -82,8 +82,8 @@ public class ChangeUserDataTest {
         Response response = userRequest.createUser(user);
         userRequest.setAccessTkn(response);
         User newPasswordUser = new User(null, dataGenForUser.generatePassword(), null);
-        Response response_patch = userRequest.changeUserData(newPasswordUser, userRequest.getAccessTkn());
-        response_patch.then()
+        Response responsePatch = userRequest.changeUserData(newPasswordUser, userRequest.getAccessTkn());
+        responsePatch.then()
                 .assertThat().statusCode(401)
                 .and()
                 .body("message", equalTo("You should be authorised"));
@@ -97,8 +97,8 @@ public class ChangeUserDataTest {
         Response response = userRequest.createUser(user);
         userRequest.setAccessTkn(response);
         User newPasswordUser = new User(null, null, dataGenForUser.generateName());
-        Response response_patch = userRequest.changeUserData(newPasswordUser, userRequest.getAccessTkn());
-        response_patch.then()
+        Response responsePatch = userRequest.changeUserData(newPasswordUser, userRequest.getAccessTkn());
+        responsePatch.then()
                 .assertThat().statusCode(401)
                 .and()
                 .body("message", equalTo("You should be authorised"));
@@ -114,8 +114,8 @@ public class ChangeUserDataTest {
         Response response = userRequest.loginUser(user);
         userRequest.setAccessTkn(response);
         User newEmailUser = new User(oldUser.getEmail(), null, null);//формируем JSON с полем почты
-        Response response_patch = userRequest.changeUserData(newEmailUser, userRequest.getAccessTkn());
-        response_patch.then()
+        Response responsePatch = userRequest.changeUserData(newEmailUser, userRequest.getAccessTkn());
+        responsePatch.then()
                 .assertThat().statusCode(403)
                 .and()
                 .body("success", equalTo(false));

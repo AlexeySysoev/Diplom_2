@@ -10,9 +10,9 @@ import user.UserRequest;
 import static org.hamcrest.CoreMatchers.equalTo;
 
 public class CreateUserTest {
-    DataGenForUser dataGenForUser = new DataGenForUser();
-    User user = new User(dataGenForUser.generateEmail(), dataGenForUser.generatePassword(), dataGenForUser.generateName());
-    UserRequest userRequest = new UserRequest();
+    private DataGenForUser dataGenForUser = new DataGenForUser();
+    private User user = new User(dataGenForUser.generateEmail(), dataGenForUser.generatePassword(), dataGenForUser.generateName());
+    private UserRequest userRequest = new UserRequest();
 
     @Test
     @DisplayName("Создаем нового пользователя с уникальными данными")
